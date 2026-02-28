@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
+from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.core.config import get_settings
@@ -134,6 +135,16 @@ def create_app() -> FastAPI:
     
     # Include routers
     app.include_router(router, prefix="/api/v1")
+    
+    # Mount static files for chat UI
+    app.mount("/static", StaticFiles(directory="static"), name="static")
+    
+    # Serve chat UI at root
+    @app.get("/")
+    async def chat_ui():
+        """Serve the chat interface."""
+        from fastapi.responses import FileResponse
+        return FileResponse("static/index.html")
     
     return app
 
